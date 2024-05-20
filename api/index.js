@@ -5,6 +5,27 @@ const cors = require('cors');
 const app = express();
 app.use(cors())
 
+async function getMediumStoryStats(storyUrl) {
+    if (!storyUrl.includes("medium.com")) {
+        throw new Error("Not authorized");
+    } else {
+        try {
+            const response = await axios.get(storyUrl);
+            const html = response.data;
+            // const $ = cheerio.load(html);
+            const clapsIndex = html.indexOf("clapCount\":") + "clapCount\":".length;
+            const endIndex = html.indexOf(",", clapsIndex);
+            const claps = parseInt(html.substring(clapsIndex, endIndex));
+            // const comments = parseInt($('.pw-responses-count').first().text().trim());
+            return claps;
+        } catch (error) {
+            console.error("Error:", error);
+            throw new Error("Internal server error");
+        }
+    }
+}
+
+
 async function scrapeFollowersCount(profileUrl) {
     try {
         const response = await axios.get(profileUrl);
